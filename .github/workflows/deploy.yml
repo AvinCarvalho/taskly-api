@@ -22,3 +22,22 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push eesho/taskly-api:latest
+
+      - name: Deploy to k3s (if available)
+        run: |
+          if [ -n "${{ secrets.EC2_SSH_KEY }}" ]; then
+            mkdir -p ~/.ssh
+            echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              if sudo kubectl cluster-info > /dev/null 2>&1; then
+                echo 'k3s available - deploying!'
+                sudo kubectl rollout restart deployment taskly-api
+              else
+                echo 'k3s not available - skipping'
+                exit 0
+              fi
+            " || exit 0
+          else
+            echo 'No EC2 key - skipping deploy'
+          fi
