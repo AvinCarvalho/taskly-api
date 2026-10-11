@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "80:5000"
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
