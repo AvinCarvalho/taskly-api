@@ -1,0 +1,30 @@
+name: Taskly API CI
+
+on:
+  push:
+    branches:
+      - devops-lab
+  pull_request:
+    branches:
+      - devops-lab
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: webapp
+        run: pip install -r requirements.txt
+
+      - name: Check Python syntax
+        working-directory: webapp
+        run: python -m py_compile app.py
